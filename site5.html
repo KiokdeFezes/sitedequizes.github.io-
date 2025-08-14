@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Quizzes</title>
+<style>
+body { margin:0; font-family: Arial,sans-serif; display:flex; height:100vh; }
+.sidebar { width:60px; background:#222; color:white; display:flex; flex-direction:column; align-items:center; padding:10px 0; gap:20px; }
+.sidebar button { background:none; border:none; color:white; font-size:22px; cursor:pointer; transition: transform 0.2s; }
+.sidebar button:hover { transform: scale(1.2); }
+.main { flex:1; padding:20px; overflow-y:auto; }
+.form-section { display:flex; flex-direction:column; gap:10px; max-width:300px; }
+.form-section input { padding:8px; font-size:14px; }
+.form-section button { padding:8px; background:#28a745; color:white; border:none; cursor:pointer; }
+
+/* Grid (blocos) */
+.quiz-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:15px; margin-top:20px; }
+.quiz-card { padding:15px; background:#f5f5f5; border-radius:8px; text-align:center; cursor:pointer; transition: transform 0.2s; text-decoration:none; color:black; }
+.quiz-card:hover { background:#ddd; transform: scale(1.05); }
+
+/* Lista (linhas) */
+.quiz-list a { display:block; padding:10px; background:#f5f5f5; margin:5px 0; text-decoration:none; color:black; border-radius:5px; }
+.quiz-list a:hover { background:#ddd; }
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+    <button onclick="mostrarInicio()">🏠</button>
+    <button onclick="mostrarForm()">➕</button>
+    <button onclick="mostrarProjetos()">📂</button>
+</div>
+
+<div class="main" id="main">
+    <h2>Bem-vindo ao Painel de Quizzes</h2>
+    <p>Selecione uma opção na barra lateral.</p>
+</div>
+
+<script>
+let quizzes = JSON.parse(localStorage.getItem("quizzes") || "[]");
+
+// 🏠 Exibe em blocos (grid)
+function mostrarInicio() {
+    const main = document.getElementById("main");
+    main.innerHTML = "<h2>Seus projetos (blocos)</h2>";
+    if(quizzes.length === 0){
+        main.innerHTML += "<p>Nenhum quiz criado ainda.</p>";
+    } else {
+        let grid = "<div class='quiz-grid'>";
+        quizzes.forEach(q=>{
+            grid += `<a class='quiz-card' href="${q.link}" target="_blank">
+                        <h3>${q.nome}</h3>
+                        <p>${q.materia}</p>
+                     </a>`;
+        });
+        grid += "</div>";
+        main.innerHTML += grid;
+    }
+}
+
+// Formulário de criação
+function mostrarForm(){
+    const main = document.getElementById("main");
+    main.innerHTML = `
+        <h2>Criar Novo Quiz</h2>
+        <div class="form-section">
+            <input type="text" id="nome" placeholder="Nome do quiz">
+            <input type="text" id="materia" placeholder="Matéria do quiz">
+            <input type="text" id="link" placeholder="Link do quiz">
+            <button onclick="criarQuiz()">Criar Quiz</button>
+        </div>
+    `;
+}
+
+// Cria quiz
+function criarQuiz(){
+    const nome = document.getElementById("nome").value.trim();
+    const materia = document.getElementById("materia").value.trim();
+    const link = document.getElementById("link").value.trim();
+    if(!nome || !materia || !link){
+        alert("Preencha todos os campos!");
+        return;
+    }
+    quizzes.push({nome,materia,link});
+    localStorage.setItem("quizzes", JSON.stringify(quizzes));
+    alert("Quiz criado com sucesso!");
+    mostrarForm();
+}
+
+// 📂 Exibe em linhas (lista)
+function mostrarProjetos() {
+    const main = document.getElementById("main");
+    main.innerHTML = "<h2>Seus projetos (lista)</h2>";
+    if(quizzes.length === 0){
+        main.innerHTML += "<p>Nenhum quiz criado ainda.</p>";
+    } else {
+        let lista = "<div class='quiz-list'>";
+        quizzes.forEach(q=>{
+            lista += `<a href="${q.link}" target="_blank">${q.nome} - ${q.materia}</a>`;
+        });
+        lista += "</div>";
+        main.innerHTML += lista;
+    }
+}
+
+// Inicializa mostrando blocos
+mostrarInicio();
+</script>
+
+</body>
+</html>
